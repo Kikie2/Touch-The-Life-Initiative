@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Touch The Life Initiative</title>
+<style>
+  :root{
+    --green:#30a46a;
+    --purple:#6e3aa8;
+    --warm1:#ffefe8;
+    --warm2:#fff1f8;
+    --nav-height:82px; /* used to position banner and offset scrolling */
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family:"Poppins",system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;
+    color:#222;
+    background: linear-gradient(135deg,#fff7f2,#fffaf6);
+    -webkit-font-smoothing:antialiased;
+    scroll-behavior:smooth;
+  }
+
+  /* NAVBAR */
+  header{
+    position:fixed;
+    top:0;
+    left:0;
+    right:0;
+    height:var(--nav-height);
+    background: linear-gradient(90deg,var(--green),var(--purple));
+    color:white;
+    display:flex;
+    align-items:center;
+    gap:18px;
+    padding:8px 18px;
+    z-index:1200;
+    box-shadow:0 6px 26px rgba(0,0,0,0.12);
+  }
+  .brand {
+    display:flex;
+    align-items:center;
+    gap:14px;
+  }
+  .brand img.logo {
+    height:78px;          /* bigger logo */
+    width:auto;
+    border-radius:10px;
+    object-fit:cover;
+    box-shadow:0 6px 18px rgba(0,0,0,0.15);
+  }
+  .brand h1{
+    font-size:30px;       /* larger title */
+    margin:0;
+    line-height:1;
+    letter-spacing:0.2px;
+    font-weight:800;
+  }
+  nav.main-nav{
+    margin-left:auto;
+  }
+  nav.main-nav a{
+    color:white;
+    text-decoration:none;
+    font-weight:700;
+    margin:0 12px;
+    padding:6px 8px;
+    border-radius:8px;
+  }
+  nav.main-nav a:hover{ background: rgba(255,255,255,0.08); }
+
+  /* FIXED SCROLLING BANNER (immediately visible) */
+  .banner {
+    position:fixed;
+    top: calc(var(--nav-height)); /* sits just under navbar */
+    left:0;
+    right:0;
+    height:52px;
+    z-index:1190;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+    background: linear-gradient(90deg,var(--purple),var(--green));
+    border-bottom: 2px solid rgba(255,255,255,0.14);
+    color:#fff;
+  }
+  .message-container {
+    display:flex;
+    gap:80px;
+    white-space:nowrap;
+    transform:translateX(0);
+    animation:scrollMessages 40s linear infinite;
+    will-change:transform;
+  }
+  .message {
+    font-weight:700;
+    font-size:18px;
+  }
+  @keyframes scrollMessages {
+    0% { transform: translateX(100%); }
+    100% { transform: translateX(-100%); }
+  }
+
+  /* MAIN LAYOUT (push below fixed header and banner) */
+  main{
+    padding-top: calc(var(--nav-height) + 52px + 24px); /* navbar + banner + gap */
+    max-width:1200px;
+    margin:0 auto;
+  }
+  section{
+    padding:48px 18px;
+    text-align:center;
+  }
+  h2{ margin:0 0 12px; font-size:24px; color: #2b2b2b; }
+
+  /* Gallery */
+  .gallery{
+    display:grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap:18px;
+    align-items:stretch;
+  }
+  .gallery-item{
+    position:relative;
+    border-radius:12px;
+    overflow:hidden;
+    background:#eee;
+    transform: translateY(18px);
+    opacity:0;
+    transition: all 700ms cubic-bezier(.2,.9,.2,1);
+  }
+  .gallery-item.visible{
+    transform:none;
+    opacity:1;
+  }
+  .gallery-item img{
+    width:100%;
+    height:240px;
+    object-fit:cover;
+    display:block;
+    filter:brightness(0.92);
+    transition: transform .35s ease;
+  }
+  .gallery-item:hover img{ transform: scale(1.04); }
+  .caption{
+    position:absolute;
+    left:8px;
+    right:8px;
+    bottom:8px;
+    background: rgba(0,0,0,0.45);
+    color:#fff;
+    padding:8px 10px;
+    border-radius:8px;
+    font-weight:700;
+    text-align:center;
+  }
+
+  /* Forms */
+  form.card{
+    max-width:640px;
+    margin: 12px auto 0;
+    background: linear-gradient(180deg, #fff, #fffaf7);
+    border-radius:12px;
+    padding:18px;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.06);
+    text-align:left;
+  }
+  label{ display:block; margin-top:12px; font-weight:700; color:#333; }
+  input[type="text"], input[type="email"], textarea{
+    width:100%; padding:10px; margin-top:8px; border-radius:8px; border:1px solid #ddd; font-size:15px;
+  }
+  .checkbox-group{ display:flex; flex-direction:column; gap:8px; margin-top:10px; }
+  .inline-row{ display:flex; gap:12px; flex-wrap:wrap; align-items:center; }
+
+  button.primary{
+    margin-top:14px;
+    background: linear-gradient(90deg,var(--green),var(--purple));
+    color:white;
+    border:none;
+    padding:10px 16px;
+    border-radius:10px;
+    font-weight:800;
+    cursor:pointer;
+  }
+  button.primary:hover{ opacity:0.95; transform: translateY(-1px); }
+
+  /* Footer & back to top */
+  footer{ padding:26px 18px; text-align:center; color:#fff; background: linear-gradient(90deg,var(--purple),var(--green)); }
+  #backToTop{
+    position:fixed; right:18px; bottom:18px; z-index:1300;
+    background:var(--purple); color:#fff; border:none; border-radius:50%;
+    padding:12px 14px; font-size:18px; display:none; box-shadow:0 12px 28px rgba(0,0,0,0.18);
+  }
+  #backToTop:hover{ background:var(--green) }
+
+  /* audio controls small device */
+  .audio-holder{
+    position:fixed;
+    left:14px;
+    bottom:14px;
+    z-index:1300;
+    background: rgba(255,255,255,0.95);
+    padding:6px 8px;
+    border-radius:10px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+  }
+  .audio-holder audio{ width:220px; max-width: calc(100vw - 48px); display:block; }
+
+  @media(max-width:600px){
+    .brand h1{ font-size:20px; }
+    .brand img.logo{ height:56px }
+    .message{ font-size:15px; margin:0 28px; }
+    header{ padding:6px 12px 72px; --nav-height:72px; height:72px; }
+    .banner{ top:72px; height:48px; }
+    main{ padding-top: calc(72px + 48px + 18px); }
+  }
+</style>
+</head>
+<body>
+
+<!-- Audio controls visible -->
+<div class="audio-holder" aria-hidden="false">
+  <audio id="bgAudio" controls preload="auto" loop>
+    <source src="Agnus Dei - Catholic Latin Hymn [bT9E0duau7w].mp3" type="audio/mpeg">
+    Your browser does not support audio.
+  </audio>
+</div>
+
+<!-- NAVBAR -->
+<header role="banner" aria-label="Main header">
+  <div class="brand" style="margin-left:8px;">
+    <img src="logo.png.png" alt="Touch The Life Initiative logo" class="logo">
+    <div>
+      <h1>Touch The Life Initiative</h1>
+      <div style="font-size:12px;color:rgba(255,255,255,0.95);margin-top:4px">Nairobi, Kenya — Compassion in action</div>
+    </div>
+  </div>
+
+  <nav class="main-nav" role="navigation" aria-label="Primary">
+    <a href="#home" class="nav-link">Home</a>
+    <a href="#services" class="nav-link">Services</a>
+    <a href="#gallery" class="nav-link">Gallery</a>
+    <a href="#volunteer" class="nav-link">Volunteer</a>
+    <a href="#donate" class="nav-link">Donate</a>
+    <a href="#contact" class="nav-link">Contact</a>
+  </nav>
+</header>
+
+<!-- FIXED SCROLLING MESSAGE BAR -->
+<div class="banner" role="region" aria-label="Messages of hope">
+  <div class="message-container" id="messageContainer">
+    <div class="message">💜 Love heals every wound — together we restore hope 💚</div>
+    <div class="message">💜 Kindness lights the darkest days — one visit at a time 💚</div>
+    <div class="message">💜 Small acts create big change — join us 💚</div>
+    <div class="message">💜 Your support brings comfort and dignity — thank you 💚</div>
+  </div>
+</div>
+
+<main>
+
+  <!-- HOME -->
+  <section id="home" aria-labelledby="homeTitle">
+    <h2 id="homeTitle">Giving Hope, Restoring Lives</h2>
+    <p style="max-width:900px;margin:6px auto 0;color:#444;">
+      We care for the sick and abandoned with compassion — through visits, food, clothing, prayer and emotional support.
+      Join our mission to bring dignity and hope to those who feel forgotten.
+    </p>
+  </section>
+
+  <!-- SERVICES -->
+  <section id="services" aria-labelledby="servicesTitle">
+    <h2 id="servicesTitle">Our Services</h2>
+    <div style="max-width:900px;margin:10px auto;color:#444;">
+      <ul style="list-style:none;padding:0;margin:12px 0 0;">
+        <li style="padding:6px 0">💚 Visiting and comforting patients</li>
+        <li style="padding:6px 0">💜 Offering food and clothes</li>
+        <li style="padding:6px 0">💚 Praying and spending time with them</li>
+        <li style="padding:6px 0">💜 Supporting the patient’s loved ones</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- GALLERY (all uploaded images; new ones first) -->
+  <section id="gallery" aria-labelledby="galleryTitle">
+    <h2 id="galleryTitle">Moments of Love and Hope</h2>
+    <div class="gallery" id="galleryGrid">
+      <!-- New images first -->
+      <div class="gallery-item"><img src="image_20.jpg" alt="Child holding hand"><div class="caption">No child should suffer alone</div></div>
+      <div class="gallery-item"><img src="image_18.jpg" alt="Mother and child"><div class="caption">A mother’s love, even in sorrow</div></div>
+      <div class="gallery-item"><img src="image_19.jpg" alt="Woman weeping then smiling"><div class="caption">Strength grows from the gentlest touch</div></div>
+
+      <!-- older ones -->
+      <div class="gallery-item"><img src="image_25.jpg" alt="Patients resting"><div class="caption">Hope restores broken hearts</div></div>
+      <div class="gallery-item"><img src="image_7.jpeg" alt="Kindness card"><div class="caption">Throw kindness around like confetti</div></div>
+
+      <!-- extra branded caption -->
+      <div class="gallery-item"><img src="image_20.jpg" alt="Group helping"><div class="caption">Together we touch lives with love and hope</div></div>
+    </div>
+  </section>
+
+  <!-- VOLUNTEER -->
+  <section id="volunteer" aria-labelledby="volunteerTitle">
+    <h2 id="volunteerTitle">Become a Volunteer</h2>
+
+    <form id="volunteerForm" class="card" aria-label="Volunteer form">
+      <label for="v-name">Full name</label>
+      <input id="v-name" name="name" type="text" placeholder="Enter your full name" required>
+
+      <label for="v-email">Email address</label>
+      <input id="v-email" name="email" type="email" placeholder="Enter your email" required>
+
+      <label>How would you like to help? (select any)</label>
+      <div class="checkbox-group" role="group" aria-label="Ways to help">
+        <label><input type="checkbox" name="help" value="Cash donation"> Cash donation</label>
+        <label><input type="checkbox" name="help" value="Clothes"> Clothes</label>
+        <label><input type="checkbox" name="help" value="Food"> Food</label>
+        <label><input type="checkbox" name="help" value="Visiting the sick"> Offering a visit to the sick</label>
+        <label><input type="checkbox" name="help" value="Prayer support"> Praying together for the sick</label>
+      </div>
+
+      <!-- hidden field for EmailJS containing comma-separated selections -->
+      <input type="hidden" id="helpTypes" name="helpTypes" value="">
+
+      <button type="submit" class="primary">Submit</button>
+    </form>
+  </section>
+
+  <!-- DONATE -->
+  <section id="donate" aria-labelledby="donateTitle">
+    <h2 id="donateTitle">Support Our Mission</h2>
+    <p style="max-width:900px;margin:10px auto;color:#444;">
+      Your donation helps us reach more people in need. Together we can make a difference — food, clothes, visits, and prayers.
+    </p>
+    <a href="https://www.paypal.com/donate?business=agneskinya1@gmail.com" target="_blank" rel="noopener noreferrer">
+      <button class="primary">Donate via PayPal</button>
+    </a>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact" aria-labelledby="contactTitle">
+    <h2 id="contactTitle">Contact Us</h2>
+    <form id="contactForm" class="card" aria-label="Contact form">
+      <label for="c-name">Your name</label>
+      <input id="c-name" name="visitor_name" type="text" placeholder="Enter your name" required>
+
+      <label for="c-email">Your email</label>
+      <input id="c-email" name="visitor_email" type="email" placeholder="Enter your email" required>
+
+      <label for="c-message">Message</label>
+      <textarea id="c-message" name="visitor_message" placeholder="Write your message here..." rows="5" required></textarea>
+
+      <button type="submit" class="primary">Send Message</button>
+    </form>
+
+    <p style="margin-top:12px;color:#fff;display:inline-block;background:linear-gradient(90deg,var(--purple),var(--green));padding:8px 12px;border-radius:8px;">
+      Thank you for reaching out — you’ll receive feedback soon.
+    </p>
+  </section>
+
+</main>
+
+<footer>
+  <p style="margin:6px 0;color:#fff">Location: Nairobi, Kenya | Email: agneskinya1@gmail.com</p>
+  <p style="margin:0;color:#fff">&copy; 2025 Touch The Life Initiative</p>
+</footer>
+
+<button id="backToTop" aria-label="Back to top">↑</button>
+
+<!-- EmailJS (placeholders) -->
+<script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+<script>
+  /* ================== Configuration ==================
+     Replace the placeholders below with your EmailJS details
+     =================================================== */
+  const EMAILJS_PUBLIC_KEY = "YOUR_PUBLIC_KEY";
+  const EMAILJS_SERVICE_ID = "YOUR_SERVICE_ID";
+  const EMAILJS_VOLUNTEER_TEMPLATE_ID = "YOUR_VOLUNTEER_TEMPLATE_ID";
+  const EMAILJS_CONTACT_TEMPLATE_ID = "YOUR_CONTACT_TEMPLATE_ID";
+  /* ================================================== */
+
+  if(window.emailjs && EMAILJS_PUBLIC_KEY && EMAILJS_PUBLIC_KEY !== "YOUR_PUBLIC_KEY"){
+    emailjs.init(EMAILJS_PUBLIC_KEY);
+  }
+
+  /* Smooth navigation: account for header + banner heights */
+  function scrollToElement(id){
+    const el = document.getElementById(id);
+    if(!el) return;
+    const header = document.querySelector('header');
+    const banner = document.querySelector('.banner');
+    const headerH = header ? header.offsetHeight : 0;
+    const bannerH = banner ? banner.offsetHeight : 0;
+    const offset = headerH + bannerH + 12;
+    const top = el.getBoundingClientRect().top + window.pageYOffset - offset;
+    window.scrollTo({top, behavior:'smooth'});
+  }
+  document.querySelectorAll('a.nav-link, nav.main-nav a, .nav-link').forEach(a=>{
+    a.addEventListener('click', function(ev){
+      ev.preventDefault();
+      const href = (this.getAttribute('href') || '').trim();
+      if(href && href.startsWith('#')) scrollToElement(href.slice(1));
+    });
+  });
+
+  /* Back to top show/hide */
+  const backBtn = document.getElementById('backToTop');
+  window.addEventListener('scroll', ()=> {
+    backBtn.style.display = (window.pageYOffset > 400) ? 'block' : 'none';
+  });
+  backBtn.addEventListener('click', ()=> window.scrollTo({top:0,behavior:'smooth'}) );
+
+  /* Gallery items fade-in using IntersectionObserver */
+  const galleryItems = document.querySelectorAll('.gallery-item');
+  const gObserver = new IntersectionObserver((entries)=>{
+    entries.forEach(entry=>{
+      if(entry.isIntersecting) entry.target.classList.add('visible');
+    });
+  }, {threshold:0.18});
+  galleryItems.forEach(i=>gObserver.observe(i));
+
+  /* Volunteer form: collect checked help types into hidden input then send via EmailJS */
+  document.getElementById('volunteerForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    const form = this;
+    const checked = Array.from(form.querySelectorAll('input[type="checkbox"][name="help"]:checked')).map(n=>n.value);
+    document.getElementById('helpTypes').value = checked.join(', ') || 'No selection';
+    // If EmailJS configured, send; otherwise show local success.
+    if(window.emailjs && EMAILJS_SERVICE_ID && EMAILJS_VOLUNTEER_TEMPLATE_ID && EMAILJS_PUBLIC_KEY && EMAILJS_PUBLIC_KEY!=='YOUR_PUBLIC_KEY'){
+      emailjs.sendForm(EMAILJS_SERVICE_ID, EMAILJS_VOLUNTEER_TEMPLATE_ID, form)
+        .then(()=> { alert('💜 Thank you! We received your volunteer submission and will contact you soon.'); form.reset(); })
+        .catch(err=> { console.error(err); alert('Error sending — please try again later.'); });
+    } else {
+      alert('💜 Thank you! We received your volunteer submission (EmailJS not configured).');
+      form.reset();
+    }
+  });
+
+  /* Contact form: send via EmailJS if configured */
+  document.getElementById('contactForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    const form = this;
+    if(window.emailjs && EMAILJS_SERVICE_ID && EMAILJS_CONTACT_TEMPLATE_ID && EMAILJS_PUBLIC_KEY && EMAILJS_PUBLIC_KEY!=='YOUR_PUBLIC_KEY'){
+      emailjs.sendForm(EMAILJS_SERVICE_ID, EMAILJS_CONTACT_TEMPLATE_ID, form)
+        .then(()=> { alert('💚 Thank you! Your message was sent — we will reply soon.'); form.reset(); })
+        .catch(err=> { console.error(err); alert('Error sending — please try again later.'); });
+    } else {
+      alert('💚 Thank you! Your message was received (EmailJS not configured).');
+      form.reset();
+    }
+  });
+
+  /* Autoplay attempt for audio (some browsers require user gesture) */
+  window.addEventListener('load', ()=> {
+    const audio = document.getElementById('bgAudio');
+    if(audio){
+      const p = audio.play();
+      if(p !== undefined){
+        p.catch(()=> { /* autoplay blocked — user will need to press play */ });
+      }
+    }
+  });
+</script>
+</body>
+</html>
